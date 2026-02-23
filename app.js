@@ -182,6 +182,33 @@
 
   // ✅ CORRECCIÓN CLAVE: evitar submit/recarga de página + asegurar mensaje
   btnEnviar.addEventListener("click", async (e) => {
+  try {
+    if (e && e.preventDefault) e.preventDefault();
+
+    setStatus("Enviando…");
+    btnEnviar.disabled = true;
+
+    const payload = buildPayload();
+    const r = await apiPostMovimiento(payload);
+    const uuid = r?.uuid || r?.id || "";
+
+    const msg = "✅ Movimiento enviado correctamente" + (uuid ? (" (ID: " + uuid + ")") : "");
+    setStatus(msg);
+
+    // ✅ Mensaje “imposible de ignorar” (solo para confirmar que funciona)
+    alert(msg);
+
+    monto.value = "";
+    motivo.value = "";
+    monto.focus();
+  } catch (err) {
+    const msg = "❌ " + String(err?.message || err);
+    setStatus(msg);
+    alert(msg);
+  } finally {
+    btnEnviar.disabled = false;
+  }
+});
     try {
       // evita que el navegador “envíe” un form y recargue
       if (e && typeof e.preventDefault === "function") e.preventDefault();
