@@ -29,7 +29,13 @@
     return b;
   }
 
-  function setStatus(msg) { statusBox.textContent = msg; }
+  // ✅ Ajuste: asegurar que el status SIEMPRE sea visible
+  function setStatus(msg) {
+    if (!statusBox) return;
+    statusBox.style.display = "block";
+    statusBox.textContent = msg;
+  }
+
   function setLoginStatus(msg) { loginStatus.style.display = "block"; loginStatus.textContent = msg; }
 
   function tokenGet() { return localStorage.getItem("auth_token") || ""; }
@@ -174,18 +180,31 @@
 
   btnLogout.addEventListener("click", () => { tokenClear(); updatePills(); showLogin(); });
 
-  btnEnviar.addEventListener("click", async () => {
+  // ✅ CORRECCIÓN CLAVE: evitar submit/recarga de página + asegurar mensaje
+  btnEnviar.addEventListener("click", async (e) => {
     try {
+      // evita que el navegador “envíe” un form y recargue
+      if (e && typeof e.preventDefault === "function") e.preventDefault();
+      if (e && typeof e.stopPropagation === "function") e.stopPropagation();
+
       setStatus("Enviando…");
+
+      // evitar doble click
+      try { btnEnviar.disabled = true; } catch (_) {}
+
       const payload = buildPayload();
       const r = await apiPostMovimiento(payload);
       const uuid = r?.uuid || r?.id || "";
-      setStatus("✅ Enviado OK. " + (uuid ? ("UUID/ID: " + uuid) : "") + "\n" + JSON.stringify(payload, null, 2));
+
+      setStatus("✅ Enviado OK. " + (uuid ? ("UUID/ID: " + uuid) : ""));
+
       monto.value = "";
       motivo.value = "";
       monto.focus();
     } catch (e) {
       setStatus("❌ " + String(e?.message || e));
+    } finally {
+      try { btnEnviar.disabled = false; } catch (_) {}
     }
   });
 
