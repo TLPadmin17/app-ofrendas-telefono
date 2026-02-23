@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Ofrendas Iglesia</title>
+  <meta name="theme-color" content="#0F172A" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/png" href="./icons/icon-192.png" />
+  <style>
+    :root {
+      --bg:#0F172A;
+      --panel:#1E293B;
+      --card:#111827;
+      --border:#334155;
+      --text:#E2E8F0;
+      --muted:#94A3B8;
+      --primary:#2563EB;
+      --success:#10B981;
+      --danger:#DC2626;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    .wrap{max-width:760px;margin:0 auto;padding:16px 14px 90px}
+    .header{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px 14px 10px;position:sticky;top:10px;z-index:10;backdrop-filter:blur(6px)}
+    .title{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px}
+    .subtitle{color:var(--muted);font-size:12px;margin-top:4px}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px;margin-top:12px}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .tab{flex:1;min-width:120px;border-radius:12px;border:1px solid var(--border);background:#334155;color:var(--text);padding:10px 12px;font-weight:700}
+    .tab.active{background:var(--primary);border-color:var(--primary)}
+    .tab.egreso.active{background:var(--danger);border-color:var(--danger)}
+    label{display:block;color:var(--muted);font-size:12px;font-weight:700;margin:10px 0 6px}
+    input,textarea{width:100%;background:#0B1220;color:var(--text);border:1px solid var(--border);border-radius:12px;padding:12px;font-size:16px;outline:none}
+    textarea{min-height:84px;resize:vertical}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .btn{width:100%;border:none;border-radius:14px;padding:13px 14px;font-weight:800;font-size:16px;margin-top:14px;background:var(--success);color:#062b1f}
+    .btn:active{transform:scale(0.99)}
+    .btn.secondary{background:#334155;color:var(--text)}
+    .status{margin-top:10px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:13px;white-space:pre-wrap}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:#0B1220;color:var(--muted);font-size:12px}
+    .login-grid{display:grid;grid-template-columns:1fr;gap:10px}
+    .footerbar{position:fixed;left:0;right:0;bottom:0;background:rgba(15,23,42,0.92);border-top:1px solid var(--border);padding:10px 14px;display:flex;gap:10px;justify-content:center;backdrop-filter:blur(8px)}
+    .small{font-size:12px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div class="title">⛪ Ofrendas Iglesia</div>
+      <div class="subtitle">Registro rápido (Ofrenda · Diezmo · Egreso) — sincroniza con tu PC</div>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="pill" id="pillApi">🌐 API: —</span>
+        <span class="pill" id="pillAuth">🔒 Sesión: —</span>
+      </div>
+    </div>
+
+    <div class="card" id="loginCard">
+      <div style="font-weight:800;font-size:15px">🔐 Iniciar sesión</div>
+      <div class="small" style="margin-top:6px">Usa el mismo usuario/clave que te funciona en Swagger.</div>
+      <div class="login-grid" style="margin-top:10px">
+        <div>
+          <label>Usuario</label>
+          <input id="username" placeholder="admin" autocomplete="username" />
+        </div>
+        <div>
+          <label>Contraseña</label>
+          <input id="password" type="password" placeholder="••••••••" autocomplete="current-password" />
+        </div>
+      </div>
+      <button class="btn" id="btnLogin">Entrar</button>
+      <div class="status" id="loginStatus" style="display:none"></div>
+    </div>
+
+    <div class="card" id="formCard" style="display:none">
+      <div style="font-weight:800;font-size:15px">🧾 Nuevo movimiento</div>
+
+      <div class="tabs">
+        <button class="tab active" data-kind="Ofrenda">Ofrenda</button>
+        <button class="tab" data-kind="Diezmo">Diezmo</button>
+        <button class="tab egreso" data-kind="Egreso">Egreso</button>
+      </div>
+
+      <div class="row" style="margin-top:6px">
+        <div>
+          <label>Fecha</label>
+          <input id="fecha" type="date" />
+        </div>
+        <div>
+          <label>Monto (CLP)</label>
+          <input id="monto" inputmode="numeric" placeholder="1000" />
+        </div>
+      </div>
+
+      <label>Motivo / Nota</label>
+      <textarea id="motivo" placeholder="Ej: Ofrenda culto domingo"></textarea>
+
+      <button class="btn" id="btnEnviar">✅ Enviar</button>
+      <button class="btn secondary" id="btnLogout">Cerrar sesión</button>
+
+      <div class="status" id="statusBox">Listo.</div>
+      <div class="small" style="margin-top:10px">
+        Si tu API está en plan gratuito puede demorarse unos segundos si estaba “dormida”.
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-weight:800;font-size:15px">📌 Instalar como App</div>
+      <div class="small" style="margin-top:6px">
+        En Android/Chrome: menú (⋮) → <b>“Agregar a pantalla principal”</b>. Luego la abres como una app.
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-weight:800;font-size:15px">⚙️ Configuración rápida</div>
+      <div class="small" style="margin-top:6px">
+        API actual: <span id="apiText">—</span><br/>
+        Si necesitas cambiarla: edita <b>config.js</b>.
+      </div>
+    </div>
+  </div>
+
+  <div class="footerbar">
+    <span class="small">By Dyrcom Spa · Sincroniza con Gestión Iglesia</span>
+  </div>
+
+  <script src="./config.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
